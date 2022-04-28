@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Lazy Load</title>
+    <style>
+      html {
+        font-size: 20px;
+        line-height: 1.6;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      }
+      
+      header {
+        margin: 1rem 3rem 3rem 3rem;
+      }
+      header h1 {
+        font-size: 3rem;
+        line-height: 1.2;
+        font-weight: 300;
+        color: #999;
+      }
+      header h2 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+        font-weight: 300;
+        color: cornflowerblue;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 1rem;
+        width: 80vw;
+        margin: 3rem 3rem;
+        grid-template-rows: auto;
+      }
+      
+      main figcaption {
+        font-size: 1rem;
+        font-family: inherit;
+      }
+      main{
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+      }
+      footer {
+        background-color: #aaa;
+        color: #333;
+        font-size: 1rem;
+        font-weight: 300;
+        padding: 1rem 3rem 3rem 3rem;
+        margin-top: 0;
+      }
+      img{
+          width:100px;
+          max-width: 100px;
+      }
+      div{
+          border: 1px solid black;
+          min-width: 300px;
+          /* max-width: 400px; */
+          display: flex;
+          flex-wrap: wrap;
+          height: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+        
+      <!-- images will be loaded here with figure and figcaption -->
+    </main>
+    <footer onload="getData(len+25)">
+      <p>The Footer. &copy; 2019 Turkey Stuff Inc.</p>
+    </footer>
+    <script>
+        let size = 1;
+        let len = 0
+        
+      document.addEventListener("DOMContentLoaded", () => {
+        let options = {
+          root: null,
+          rootMargins: "0px",
+          threshold: 0.5
+        };
+        const observer = new IntersectionObserver(handleIntersect, options);
+        observer.observe(document.querySelector("footer"));
+        
+      });
+      function handleIntersect(entries) {
+        console.log('entries', entries);
+        if (entries[0].isIntersecting) {
+          console.warn("something is intersecting with the viewport");
+          len +=25   
+          getData(len);
+        }
+      }
+   
+    function getData(len) {
+        console.log('len', len);
+        
+        let main = document.querySelector("main");
+        console.log("fetch some JSON data");
+        fetch(`https://jsons-ervermock.herokuapp.com/data?_start=${len-25}&_end=${len}`)
+          .then(response => response.json())
+          .then(data => {
+            console.log('data', data);
+            data.map(item => {
+              let fig = document.createElement("div");
+              let fc = document.createElement("h4");
+              let id = document.createElement("p")
+              id.innerHTML = item.id
+              fc.textContent = item.Name;
+              fig.append(fc);
+              fig.append(id)
+              main.append(fig);
+            });
+          });
+      }
+    </script>
+  </body>
+</html>
